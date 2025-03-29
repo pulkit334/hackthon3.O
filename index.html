@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Finance Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1a73e8",
+                        dark: "#121212",
+                        light: "#f9f9f9",
+                        card: "#ffffff",
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-light text-gray-900 transition-all duration-300">
+
+    <!-- Navbar -->
+    <nav class="bg-primary text-white p-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold">💰 AI Finance Assistant</h1>
+        <button onclick="toggleDarkMode()" class="px-4 py-2 bg-white text-primary rounded-full shadow">🌙 Dark Mode</button>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="max-w-3xl mx-auto mt-8 p-6 bg-card shadow-lg rounded-xl transition-all">
+        
+        <!-- Balance & Income Overview -->
+        <div class="grid grid-cols-2 gap-4 text-white">
+            <div class="bg-primary p-6 rounded-lg">
+                <h3 class="text-xl">Total Balance</h3>
+                <p id="totalBalance" class="text-3xl font-bold">$5000</p>
+            </div>
+            <div class="bg-green-500 p-6 rounded-lg">
+                <h3 class="text-xl">Monthly Income</h3>
+                <p id="income" class="text-3xl font-bold">$2000</p>
+            </div>
+        </div>
+
+        <!-- Expense List -->
+        <h3 class="mt-6 text-lg font-semibold">Recent Transactions</h3>
+        <ul id="expenseList" class="mt-2 space-y-3">
+            <!-- Expenses will be added dynamically -->
+        </ul>
+
+        <!-- Add Income/Expense -->
+        <h3 class="mt-6 text-lg font-semibold">Add Transaction</h3>
+        <div class="mt-2 flex">
+            <input id="transactionName" type="text" placeholder="Transaction Name" class="p-2 border rounded w-1/3 mr-2">
+            <input id="transactionAmount" type="number" placeholder="Amount ($)" class="p-2 border rounded w-1/4 mr-2">
+            <select id="transactionType" class="p-2 border rounded w-1/4 mr-2">
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+            </select>
+            <button onclick="addTransaction()" class="bg-primary text-white px-4 py-2 rounded shadow">Add</button>
+        </div>
+
+        <!-- AI Budgeting Suggestion -->
+        <h3 class="mt-6 text-lg font-semibold">AI Budgeting Insight</h3>
+        <p id="aiSuggestion" class="mt-2 text-gray-700">Enter transactions to get AI-powered insights.</p>
+    </div>
+
+    <script>
+        let totalBalance = 5000;
+        let income = 2000;
+        const transactions = [];
+
+        function addTransaction() {
+            let name = document.getElementById("transactionName").value;
+            let amount = parseFloat(document.getElementById("transactionAmount").value);
+            let type = document.getElementById("transactionType").value;
+            
+            if (name && amount > 0) {
+                transactions.push({ name, amount, type });
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            let expenseList = document.getElementById("expenseList");
+            expenseList.innerHTML = "";
+            let totalSpent = 0;
+            let totalIncome = income;
+
+            transactions.forEach(transaction => {
+                let li = document.createElement("li");
+                li.className = `p-3 rounded-lg flex justify-between shadow-md ${transaction.type === 'expense' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+                li.innerHTML = `<span>${transaction.type === 'expense' ? '💸' : '💰'} ${transaction.name}</span> <span>$${transaction.amount}</span>`;
+                expenseList.appendChild(li);
+
+                if (transaction.type === "expense") {
+                    totalSpent += transaction.amount;
+                } else {
+                    totalIncome += transaction.amount;
+                }
+            });
+
+            // Update balance & AI insights
+            document.getElementById("totalBalance").innerText = `$${totalIncome - totalSpent}`;
+            document.getElementById("income").innerText = `$${totalIncome}`;
+
+            let suggestion = "You're managing money well! 🚀";
+            if (totalSpent > totalIncome * 0.6) suggestion = "⚠️ High spending detected! Consider cutting unnecessary costs.";
+            else if (totalSpent > totalIncome * 0.3) suggestion = "💡 Try allocating more to savings for future security.";
+            
+            document.getElementById("aiSuggestion").innerText = suggestion;
+        }
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle("bg-dark");
+            document.body.classList.toggle("text-white");
+            document.querySelector(".shadow-lg").classList.toggle("bg-gray-900");
+        }
+    </script>
+
+</body>
+</html>
