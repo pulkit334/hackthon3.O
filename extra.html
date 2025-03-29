@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Personal Finance Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            background: #ffcccb;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Personal Finance Assistant</h1>
+
+        <div class="budget">
+            <h2>Set Budget</h2>
+            <input type="number" id="budgetInput" placeholder="Enter Monthly Budget">
+            <button onclick="setBudget()">Set Budget</button>
+            <p id="budgetDisplay">Budget: $0</p>
+        </div>
+
+        <div class="expenses">
+            <h2>Add Expense</h2>
+            <input type="text" id="expenseName" placeholder="Expense Name">
+            <input type="number" id="expenseAmount" placeholder="Amount">
+            <button onclick="addExpense()">Add Expense</button>
+        </div>
+
+        <h3>💸 Expenses</h3>
+        <ul id="expenseList"></ul>
+
+        <h3>🤖 AI Insights</h3>
+        <button onclick="getAIAdvice()">Get Financial Advice</button>
+        <p id="aiAdvice"></p>
+    </div>
+
+    <script>
+        let budget = 0;
+        let expenses = [];
+
+        function setBudget() {
+            budget = document.getElementById('budgetInput').value;
+            document.getElementById('budgetDisplay').innerText = `Budget: $${budget}`;
+        }
+
+        function addExpense() {
+            let name = document.getElementById('expenseName').value;
+            let amount = document.getElementById('expenseAmount').value;
+            
+            if (!name || !amount) {
+                alert("Please enter expense name and amount.");
+                return;
+            }
+
+            expenses.push({ name, amount });
+            updateExpenseList();
+        }
+
+        function updateExpenseList() {
+            let expenseList = document.getElementById('expenseList');
+            expenseList.innerHTML = "";
+            expenses.forEach((expense, index) => {
+                let li = document.createElement('li');
+                li.innerHTML = `${expense.name} - $${expense.amount} <button onclick="removeExpense(${index})">❌</button>`;
+                expenseList.appendChild(li);
+            });
+        }
+
+        function removeExpense(index) {
+            expenses.splice(index, 1);
+            updateExpenseList();
+        }
+
+        async function getAIAdvice() {
+            let totalSpent = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+            let remaining = budget - totalSpent;
+            let prompt = `I have a monthly budget of $${budget} and have spent $${totalSpent}. What financial advice do you have for me?`;
+
+            document.getElementById('aiAdvice').innerText = "Thinking...";
+
+            try {
+                let response = await fetch("https://api.itinerarygpt.com/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: prompt, max_tokens: 100 })
+                });
+
+                let data = await response.json();
+                document.getElementById('aiAdvice').innerText = data.text || "Couldn't fetch advice.";
+            } catch (error) {
+                document.getElementById('aiAdvice').innerText = "Error getting AI advice.";
+            }
+        }
+    </script>
+</body>
+</html>
